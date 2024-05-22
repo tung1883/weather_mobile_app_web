@@ -3,6 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=0.5, user-scalable=yes">
   <title>3D Globe</title>
   <style>
     body {
@@ -27,34 +29,34 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-     // Create a sphere
-      const geometry = new THREE.SphereGeometry(5, 32, 32); // Radius, Width Segments, Height Segments
-      const textureLoader = new THREE.TextureLoader();
-      let material = new THREE.MeshPhongMaterial({
-        map: new THREE.TextureLoader().load('../public/globe/map.jpg'),
-        bumpMap: new THREE.TextureLoader().load('../public/globe/bump.jpg'),
-        bumpScale: 0.5,
-      });
-      const globe = new THREE.Mesh(geometry, material);
-      scene.add(globe);
+    // Create a sphere
+    const geometry = new THREE.SphereGeometry(5, 32, 32); // Radius, Width Segments, Height Segments
+    const textureLoader = new THREE.TextureLoader();
+    let material = new THREE.MeshPhongMaterial({
+      map: new THREE.TextureLoader().load('../public/globe/map.jpg'),
+      bumpMap: new THREE.TextureLoader().load('../public/globe/bump.jpg'),
+      bumpScale: 0.5,
+    });
+    const globe = new THREE.Mesh(geometry, material);
+    scene.add(globe);
 
-      var light = new THREE.DirectionalLight();
-      light.position.set(0, 0, 1).normalize();
-      scene.add(light);
+    var light = new THREE.DirectionalLight();
+    light.position.set(0, 0, 1).normalize();
+    scene.add(light);
 
-      // Set camera position
-      camera.position.z = 15;
+    // Set camera position
+    camera.position.z = 15;
 
-      // Animation loop
-      function animate() {
-        requestAnimationFrame(animate);
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
 
-        globe.rotation.y += 0.005;
+      globe.rotation.y += 0.005;
 
-        renderer.render(scene, camera);
-      }
+      renderer.render(scene, camera);
+    }
 
-      animate();
+    animate();
   </script>
 </body>
 
