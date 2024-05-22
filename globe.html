@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>3D Globe</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #f0f0f0;
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.143/build/three.min.js"></script>
+  <script>
+    const scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+     // Create a sphere
+      const geometry = new THREE.SphereGeometry(5, 32, 32); // Radius, Width Segments, Height Segments
+      const textureLoader = new THREE.TextureLoader();
+      let material = new THREE.MeshPhongMaterial({
+        map: new THREE.TextureLoader().load('https://i.sstatic.net/7MXox.jpg'),
+        // bumpMap: new THREE.TextureLoader().load('globe/bump.jpg'),
+        bumpScale: 0.5,
+      });
+      const globe = new THREE.Mesh(geometry, material);
+      scene.add(globe);
+
+      var light = new THREE.DirectionalLight();
+      light.position.set(0, 0, 1).normalize();
+      scene.add(light);
+
+      // Set camera position
+      camera.position.z = 15;
+
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+
+        globe.rotation.y += 0.005;
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+  </script>
+</body>
+
+</html>
