@@ -30,6 +30,7 @@
 <body>
   <div class="canvas-container">
     <script src="https://cdn.jsdelivr.net/npm/three@0.143/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.143/examples/js/controls/OrbitControls.js"></script>
     <script>
       const scene = new THREE.Scene();
       var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -38,12 +39,22 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.querySelector('.canvas-container').appendChild(renderer.domElement);
 
+      // Add OrbitControls
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true; // Optional, for an inertia effect
+      controls.dampingFactor = 0.25; // Optional, adjust for sensitivity
+      controls.enableZoom = true; // Enable zooming
+      controls.enablePan = false; // Disable panning (optional)
+      controls.enableRotate = true; // Enable rotating
+      controls.minDistance = 5; // Minimum zoom distance
+      controls.maxDistance = 50; // Maximum zoom distance
+
       // Create a sphere
       const geometry = new THREE.SphereGeometry(5, 32, 32); // Radius, Width Segments, Height Segments
       const textureLoader = new THREE.TextureLoader();
       let material = new THREE.MeshPhongMaterial({
-        map: new THREE.TextureLoader().load('../public/globe/map.jpg'),
-        bumpMap: new THREE.TextureLoader().load('../public/globe/bump.jpg'),
+        map: textureLoader.load('../public/globe/map.jpg'),
+        bumpMap: textureLoader.load('../public/globe/bump.jpg'),
         bumpScale: 0.5,
       });
       const globe = new THREE.Mesh(geometry, material);
@@ -61,6 +72,8 @@
         requestAnimationFrame(animate);
 
         globe.rotation.y += 0.005;
+
+        controls.update(); // Update controls
 
         renderer.render(scene, camera);
       }
