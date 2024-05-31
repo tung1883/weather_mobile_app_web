@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=2, minimum-scale=0.5, user-scalable=yes">
-  <title>3D Globe</title>
+  <title>3D Globe and Map</title>
   <style>
     body {
       margin: 0;
@@ -16,62 +16,108 @@
     .canvas-container {
       width: 100%;
       height: 100vh;
-      overflow: scroll;
-      /* Enable scrolling */
+      overflow: hidden;
       position: relative;
     }
 
     canvas {
       display: block;
     }
+
+    .switch-button {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 10px 20px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
   </style>
 </head>
 
 <body>
   <div class="canvas-container">
+    <div class="switch-button">Switch to Map View</div>
     <script src="https://cdn.jsdelivr.net/npm/three@0.143/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.143/examples/js/controls/OrbitControls.js"></script>
     <script>
       const scene = new THREE.Scene();
-      var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-      var renderer = new THREE.WebGLRenderer();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer();
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.querySelector('.canvas-container').appendChild(renderer.domElement);
 
       // Add OrbitControls
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true; // Optional, for an inertia effect
-      controls.dampingFactor = 0.25; // Optional, adjust for sensitivity
-      controls.enableZoom = true; // Enable zooming
-      controls.enablePan = false; // Disable panning (optional)
-      controls.enableRotate = true; // Enable rotating
-      controls.minDistance = 5; // Minimum zoom distance
-      controls.maxDistance = 50; // Maximum zoom distance
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.25;
+      controls.enableZoom = true;
+      controls.enablePan = true;
+      controls.enableRotate = true;
+      controls.minDistance = 5;
+      controls.maxDistance = 50;
 
-      // Create a sphere
-      const geometry = new THREE.SphereGeometry(5, 32, 32); // Radius, Width Segments, Height Segments
       const textureLoader = new THREE.TextureLoader();
-      let material = new THREE.MeshPhongMaterial({
-        map: textureLoader.load('../public/globe/map.jpg'),
-        bumpMap: textureLoader.load('../public/globe/bump.jpg'),
+
+      // Load textures
+      const globeTexture = textureLoader.load('../public/globe/map.jpg');
+      const bumpTexture = textureLoader.load('../public/globe/bump.jpg');
+      const mapTexture = textureLoader.load('../public/globe/high-res-map.jpg'); // High-resolution map for flat view
+
+      const globeGeometry = new THREE.SphereGeometry(5, 32, 32);
+      const globeMaterial = new THREE.MeshPhongMaterial({
+        map: globeTexture,
+        bumpMap: bumpTexture,
         bumpScale: 0.5,
       });
-      const globe = new THREE.Mesh(geometry, material);
+      const globe = new THREE.Mesh(globeGeometry, globeMaterial);
       scene.add(globe);
 
-      var light = new THREE.DirectionalLight();
-      light.position.set(0, 0, 1).normalize();
+      // Add a static directional light
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(10, 10, 10);
       scene.add(light);
 
-      // Set camera position
+      // Add ambient light to ensure some illumination from all directions
+      const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+      scene.add(ambientLight);
+
       camera.position.z = 15;
 
-      // Animation loop
+      let isMapView = false;
+
+      function switchView() {
+        if (isMapView) {
+          // Switch to Globe View
+          scene.remove(map);
+          scene.add(globe);
+          isMapView = false;
+          document.querySelector('.switch-button').textContent = 'Switch to Map View';
+        } else {
+          // Switch to Map View
+          scene.remove(globe);
+          scene.add(map);
+          isMapView = true;
+          document.querySelector('.switch-button').textContent = 'Switch to Globe View';
+        }
+      }
+
+      document.querySelector('.switch-button').addEventListener('click', switchView);
+
+      const mapGeometry = new THREE.PlaneGeometry(20, 10); // Adjust the size as needed
+      const mapMaterial = new THREE.MeshPhongMaterial({
+        map: mapTexture,
+      });
+      const map = new THREE.Mesh(mapGeometry, mapMaterial);
+      map.rotation.x = -Math.PI / 2; // Rotate to be flat
+
       function animate() {
         requestAnimationFrame(animate);
 
-        globe.rotation.y += 0.005;
+        if (!isMapView) {
+          globe.rotation.y += 0.005;
+        }
 
         controls.update(); // Update controls
 
